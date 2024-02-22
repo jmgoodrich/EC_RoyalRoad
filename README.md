@@ -9,4 +9,5 @@ Implementation of Royal Road functions RR1 and RR2 as described by Forrest and M
 
 Team 4:  
 Jenna Goodrich  
-Joshua Glaspey
+Joshua Glaspey  
+Brad Coles

@@ -41,6 +41,9 @@ public class Parameters
 
 	public static int intermediateBlocks;
 
+	public static int tournamentSize;
+	public static double tournamentProb;
+
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
@@ -71,6 +74,9 @@ public class Parameters
 		numGenes = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		geneSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
+
+		tournamentSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
+		tournamentProb = Double.parseDouble(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 

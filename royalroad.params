@@ -14,6 +14,8 @@ Random Number Seed           :75982
 Number of Genes/Points (7)   :8
 Size of Genes (8)            :8
 Intermediate Blocks (9)      :2
+Tournament Size (10)         :2
+Tournament Probability (11)  :1.0
 
 Notes:
 
@@ -42,3 +44,10 @@ Notes:
 	gives the number of bits in each chromosome.
 
 9)  Determines number of intermediate stepping stones.
+
+10) Determines the size of the tournament for tournament selection.
+    (Only used for Selection Type 2)
+
+11) Determine the probability of selecting the best individual when performing
+    tournament selection 1.0 = deterministic tournament selection meaning
+    always select the best. (Only used for Selection Type 2)
