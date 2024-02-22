@@ -1,5 +1,5 @@
-Experiment ID                :onemax
-Problem Type                 :OM
+Experiment ID                :royalroad
+Problem Type                 :RR
 Data Input File Name         :NA
 Number of Runs               :1
 Generations per Run          :2147483647
@@ -14,6 +14,7 @@ Random Number Seed           :75982
 Number of Genes/Points (7)   :8
 Size of Genes (8)            :8
 Is NonLinear? (9)            :1
+Imtermediate Blocks? (10)    :2
 
 Notes:
 
@@ -41,5 +42,8 @@ Notes:
 8)	Determines number of bits in each gene.  Number of Genes times Size
 	gives the number of bits in each chromosome.
 
-9) Determines if R1 or R2 will be used for evaluating Fitness	1 = R1
-																2 = R2
+9) Determines if R1 or R2 will be used for evaluating Fitness	
+	1 = R1
+	2 = R2
+
+10) Number of extra group evaluations to be completed

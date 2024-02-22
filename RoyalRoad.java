@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class OneMax extends FitnessFunction{
+public class RoyalRoad extends FitnessFunction{
 
 /*******************************************************************************
 *                            INSTANCE VARIABLES                                *
@@ -23,8 +23,8 @@ public class OneMax extends FitnessFunction{
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
 
-	public OneMax(){
-		name = "OneMax Problem";
+	public RoyalRoad(){
+		name = "RoyalRoad Problem";
 	}
 
 /*******************************************************************************
@@ -87,6 +87,20 @@ public class OneMax extends FitnessFunction{
 				jump *= 2;
 			}
 		}
+
+		// int steps = Parameters.intermediateBlocks;
+		// if(steps > 0){
+        //     for(int k = steps; k > 0; k--){
+        //         for(int m = 0; m < Parameters.numGenes; m = m+Math.pow(2, k)){
+        //             for(int n = 0; n < Parameters.numGenes/steps; n++) {
+        //                 if(!X.hasBlock[n+m]){
+        //                     break;
+        //                 }
+        //                 X.rawFitness += Parameters.geneSize * Math.pow(2, k);
+        //             }
+        //         }
+        //     }
+        // }
 	}
 
 //  PRINT OUT AN INDIVIDUAL GENE TO THE SUMMARY FILE *********************************

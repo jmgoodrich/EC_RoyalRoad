@@ -40,6 +40,7 @@ public class Parameters
 	public static int geneSize;
 
 	public static boolean isNonlinear;
+	public static int intermediateBlocks;
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -72,6 +73,7 @@ public class Parameters
 		geneSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
 
 		isNonlinear = Integer.parseInt(parmInput.readLine().substring(30).trim()) == 1 ? false : true;
+		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 
@@ -113,6 +115,8 @@ public class Parameters
 		output.write("Random Number Seed           :  " + seed + "\n");
 		output.write("Number of Genes/Points       :  " + numGenes + "\n");
 		output.write("Size of Genes                :  " + geneSize + "\n");
+		output.write("Problem                      :  " + (isNonlinear ? "R2" : "R1") + "\n");
+		output.write("Intermediate Blocks          :  " + intermediateBlocks + "\n");
 
 		output.write("\n\n");
 

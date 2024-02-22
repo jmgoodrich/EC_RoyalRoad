@@ -8,5 +8,5 @@ Implementation of Royal Road functions RR1 and RR2 as described by Forrest and M
 3. By introducing an initial population that is biased to predefined building blocks, how is the diversity of the population affected over time?
 
 Team 4:  
-Jenna Goodrich
+Jenna Goodrich  
 Joshua Glaspey

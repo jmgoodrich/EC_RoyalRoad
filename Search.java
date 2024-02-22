@@ -121,8 +121,8 @@ public class Search {
 		if (Parameters.problemType.equals("NM")){
 				problem = new NumberMatch();
 		}
-		else if (Parameters.problemType.equals("OM")){
-				problem = new OneMax();
+		else if (Parameters.problemType.equals("RR")){
+			problem = new RoyalRoad();
 		}
 		else System.out.println("Invalid Problem Type");
 
