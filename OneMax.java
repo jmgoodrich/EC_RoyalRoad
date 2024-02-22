@@ -36,8 +36,23 @@ public class OneMax extends FitnessFunction{
 	public void doRawFitness(Chromo X){
 
 		X.rawFitness = 0;
-		for (int z=0; z<Parameters.numGenes * Parameters.geneSize; z++){
-			if (X.chromo.charAt(z) == '1') X.rawFitness += 1;
+
+		for(int i = 0; i < Parameters.numGenes; i++) {
+			boolean flag = false;
+			for(int j = 0; j < Parameters.geneSize; j++) {
+
+				// Not a block
+				if(X.chromo.charAt(i * Parameters.geneSize + j) == '0') {
+					flag = true;
+					break;
+				}
+			}
+
+			// Is this a block?
+			if(!flag) {
+				X.hasBlock[i] = true;
+				X.rawFitness += Parameters.geneSize;
+			}
 		}
 	}
 

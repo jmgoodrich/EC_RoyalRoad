@@ -18,6 +18,8 @@ public class Chromo
 	public double sclFitness;
 	public double proFitness;
 
+	public boolean[] hasBlock;
+
 /*******************************************************************************
 *                            INSTANCE VARIABLES                                *
 *******************************************************************************/
@@ -45,6 +47,7 @@ public class Chromo
 		this.rawFitness = -1;   //  Fitness not yet evaluated
 		this.sclFitness = -1;   //  Fitness not yet scaled
 		this.proFitness = -1;   //  Fitness not yet proportionalized
+		this.hasBlock = new boolean[Parameters.numGenes];	//	By default, all are false
 	}
 
 
