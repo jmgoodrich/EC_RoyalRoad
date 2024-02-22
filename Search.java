@@ -54,7 +54,16 @@ public class Search {
 
 	private static double fitnessStats[][];  // 0=Avg, 1=Best
 
-	private static int numBlocks[];
+	public static int numBlocks[];
+	public static double avgNumBlocks[];
+	public static int extraBlocks;
+
+	public static double avgNumGenerations;
+	public static double medianNumGenerations;
+	public static int[] numGenerations;
+
+	private static boolean foundSolution;
+	private static int solution;
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -93,7 +102,17 @@ public class Search {
 		}
 
 	//	Set up building blocks statistics
-		numBlocks = new int[Parameters.numGenes];	//	Sets all values to 0
+		extraBlocks = 0;
+		if(Parameters.isNonlinear) {
+			int j = Parameters.numGenes * 2;
+			while(j < Parameters.geneSize * Parameters.numGenes) {
+				extraBlocks += Parameters.geneSize * Parameters.numGenes / j;
+				j *= 2;
+			}
+		}
+		avgNumBlocks = new double[Parameters.numGenes + extraBlocks];	//	Sets all values to 0
+		avgNumGenerations = 0;
+		numGenerations = new int[Parameters.numRuns];
 
 	//	Problem Specific Setup - For new new fitness function problems, create
 	//	the appropriate class file (extending FitnessFunction.java) and add
@@ -118,6 +137,10 @@ public class Search {
 		bestOfGenChromo = new Chromo();
 		bestOfRunChromo = new Chromo();
 		bestOverAllChromo = new Chromo();
+		if(Parameters.isNonlinear)
+			solution = Parameters.geneSize * Parameters.numGenes * (int)(Math.log(Parameters.numGenes) / Math.log(2));
+		else 
+			solution = Parameters.geneSize * Parameters.numGenes;
 
 		if (Parameters.minORmax.equals("max")){
 			defaultBest = 0;
@@ -142,6 +165,10 @@ public class Search {
 				child[i] = new Chromo();
 			}
 
+			//	Initialize schema info
+			numBlocks = new int[Parameters.numGenes + extraBlocks];
+			foundSolution = false;
+
 			//	Begin Each Run
 			for (G=0; G<Parameters.generations; G++){
 
@@ -150,6 +177,9 @@ public class Search {
 				sumRawFitness = 0;
 				sumRawFitness2 = 0;
 				bestOfGenChromo.rawFitness = defaultBest;
+
+				// Schema information
+				numBlocks = new int[Parameters.numGenes + extraBlocks];
 
 				//	Test Fitness of Each Member
 				for (int i=0; i<Parameters.popSize; i++){
@@ -161,7 +191,7 @@ public class Search {
 					problem.doRawFitness(member[i]);
 
 					//	Update building block statistics
-					for(int j = 0; j < Parameters.numGenes; j++) 
+					for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) 
 						if(member[i].hasBlock[j]) numBlocks[j]++;
 
 					sumRawFitness = sumRawFitness + member[i].rawFitness;
@@ -207,6 +237,9 @@ public class Search {
 				// Accumulate fitness statistics
 				fitnessStats[0][G] += sumRawFitness / Parameters.popSize;
 				fitnessStats[1][G] += bestOfGenChromo.rawFitness;
+
+				// Found a solution?
+				if(bestOfGenChromo.rawFitness == solution) foundSolution = true;
 
 				averageRawFitness = sumRawFitness / Parameters.popSize;
 				stdevRawFitness = Math.sqrt(
@@ -359,6 +392,9 @@ public class Search {
 					Chromo.copyB2A(member[i], child[i]);
 				}
 
+				// Exit condition
+				if(foundSolution) break;
+
 			} //  Repeat the above loop for each generation
 
 			Hwrite.left(bestOfRunR, 4, summaryOutput);
@@ -368,7 +404,26 @@ public class Search {
 
 			System.out.println(R + "\t" + "B" + "\t"+ (int)bestOfRunChromo.rawFitness);
 
+			// Schema statistics
+			numGenerations[R] = G;
+			for(int i = 0; i < Parameters.numGenes + extraBlocks; i++) {
+				avgNumBlocks[i] += numBlocks[i];
+			}
+
 		} //End of a Run
+
+		// Update schema information
+		for(int i = 0; i < Parameters.numRuns; i++) avgNumGenerations += numGenerations[i];
+		avgNumGenerations /= 1.0 * Parameters.numRuns;
+
+		Arrays.sort(numGenerations);
+		medianNumGenerations = Parameters.numRuns % 2 == 0 ? 
+			(numGenerations[Parameters.numRuns / 2] + numGenerations[Parameters.numRuns / 2 + 1]) / 2.0 : 
+			numGenerations[Parameters.numRuns / 2];
+
+		for(int i = 0; i < Parameters.numGenes + extraBlocks; i++) {
+			avgNumBlocks[i] /= 1.0 * Parameters.numRuns;
+		}
 
 		Hwrite.left("B", 8, summaryOutput);
 

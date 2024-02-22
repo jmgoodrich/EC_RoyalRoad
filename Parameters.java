@@ -39,6 +39,8 @@ public class Parameters
 	public static int numGenes;
 	public static int geneSize;
 
+	public static boolean isNonlinear;
+
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
@@ -68,6 +70,8 @@ public class Parameters
 		seed = Long.parseLong(parmInput.readLine().substring(30).trim());
 		numGenes = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		geneSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
+
+		isNonlinear = Integer.parseInt(parmInput.readLine().substring(30).trim()) == 1 ? false : true;
 
 		parmInput.close();
 

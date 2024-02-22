@@ -54,6 +54,39 @@ public class OneMax extends FitnessFunction{
 				X.rawFitness += Parameters.geneSize;
 			}
 		}
+
+		// R2 evaluations?
+		if(Parameters.isNonlinear) {
+
+			// Initialize
+			int jump = 2;
+			int i;
+			int j;
+
+			// Modify extra blocks
+			for(int k = Parameters.numGenes; k < Parameters.numGenes + Search.extraBlocks; k++) {
+
+				// Add if blocks exist
+				for(i = 0; i < Parameters.numGenes; i += jump) {
+					boolean flag = false;
+					for(j = i; j < i + jump; j++) {
+						if(!X.hasBlock[j]) {
+							flag = true;
+							break;
+						}
+					}
+
+					// Schema exists
+					if(!flag) {
+						X.hasBlock[k] = true;
+						X.rawFitness += jump * Parameters.geneSize;
+					}
+				}
+
+				// Increase schema size
+				jump *= 2;
+			}
+		}
 	}
 
 //  PRINT OUT AN INDIVIDUAL GENE TO THE SUMMARY FILE *********************************
