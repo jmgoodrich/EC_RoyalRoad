@@ -88,6 +88,15 @@ public class RoyalRoad extends FitnessFunction{
 			}
 		}
 
+		// Debug
+		//if(X.rawFitness > 8) {
+		//	System.out.print("Chromo: ");
+		//	for(int i = 0; i < 64; i += 8) {
+		//		System.out.print(X.chromo.substring(i, i + 8) + " ");
+		//	}
+		//	System.out.println(" ||| Fitness = " + X.rawFitness);
+		//}
+
 		// int steps = Parameters.intermediateBlocks;
 		// if(steps > 0){
         //     for(int k = steps; k > 0; k--){

@@ -54,13 +54,14 @@ public class Search {
 
 	private static double fitnessStats[][];  // 0=Avg, 1=Best
 
-	public static int numBlocks[];
-	public static double avgNumBlocks[];
+	public static int numBlocks[][];
+	public static double avgNumBlocks[][];
 	public static int extraBlocks;
 
 	public static double avgNumGenerations;
 	public static double medianNumGenerations;
 	public static int[] numGenerations;
+	public static int worstGeneration;
 
 	private static boolean foundSolution;
 	private static int solution;
@@ -79,6 +80,14 @@ public class Search {
 *                             STATIC METHODS                                   *
 *******************************************************************************/
 
+	public static String formatDouble(double value) {
+		if (value == (long) value) {
+			return String.format("%d", (long) value);
+		} else {
+			return String.format("%.5f", value).replaceAll("0*$", "").replaceAll("\\.$", "");
+		}
+	}
+
 	public static void main(String[] args) throws java.io.IOException{
 
 		Calendar dateAndTime = Calendar.getInstance(); 
@@ -90,7 +99,9 @@ public class Search {
 
 	//  Write Parameters To Summary Output File
 		String summaryFileName = Parameters.expID + "_summary.txt";
+		String blockFileName = Parameters.expID + "_blocks_summary.txt";
 		FileWriter summaryOutput = new FileWriter(summaryFileName);
+		FileWriter blockSummaryOutput = new FileWriter(blockFileName);
 		parmValues.outputParameters(summaryOutput);
 
 	//	Set up Fitness Statistics matrix
@@ -110,9 +121,10 @@ public class Search {
 				j *= 2;
 			}
 		}
-		avgNumBlocks = new double[Parameters.numGenes + extraBlocks];	//	Sets all values to 0
+		avgNumBlocks = new double[Parameters.generations][Parameters.numGenes + extraBlocks];	//	Sets all values to 0
 		avgNumGenerations = 0;
 		numGenerations = new int[Parameters.numRuns];
+		worstGeneration = 0;
 
 	//	Problem Specific Setup - For new new fitness function problems, create
 	//	the appropriate class file (extending FitnessFunction.java) and add
@@ -153,11 +165,18 @@ public class Search {
 
 		bestOverAllChromo.rawFitness = defaultBest;
 
+		//blockSummaryOutput.write("\n\nRun       Gen       ");
+		//for(int i = 1; i <= (Parameters.numGenes + extraBlocks); i++) {
+		//	String formatted = String.format("s" + "%10d\n", i);
+		//	blockSummaryOutput.write(formatted);
+		//}
+
 		//  Start program for multiple runs
 		for (R = 1; R <= Parameters.numRuns; R++){
 
 			bestOfRunChromo.rawFitness = defaultBest;
 			System.out.println();
+			//String formattedR = String.format("%10d", R);
 
 			//	Initialize First Generation
 			for (int i=0; i<Parameters.popSize; i++){
@@ -166,7 +185,7 @@ public class Search {
 			}
 
 			//	Initialize schema info
-			numBlocks = new int[Parameters.numGenes + extraBlocks];
+			numBlocks = new int[Parameters.generations][Parameters.numGenes + extraBlocks];
 			foundSolution = false;
 
 			//	Begin Each Run
@@ -177,9 +196,10 @@ public class Search {
 				sumRawFitness = 0;
 				sumRawFitness2 = 0;
 				bestOfGenChromo.rawFitness = defaultBest;
+				//String formattedG = String.format("%10d", G);
 
 				// Schema information
-				numBlocks = new int[Parameters.numGenes + extraBlocks];
+				numBlocks[G] = new int[Parameters.numGenes + extraBlocks];
 
 				//	Test Fitness of Each Member
 				for (int i=0; i<Parameters.popSize; i++){
@@ -191,8 +211,8 @@ public class Search {
 					problem.doRawFitness(member[i]);
 
 					//	Update building block statistics
-					for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) 
-						if(member[i].hasBlock[j]) numBlocks[j]++;
+					for(int j = 0; j < member[i].hasBlock.length; j++) 
+						if(member[i].hasBlock[j]) numBlocks[G][j]++;
 
 					sumRawFitness = sumRawFitness + member[i].rawFitness;
 					sumRawFitness2 = sumRawFitness2 +
@@ -262,6 +282,14 @@ public class Search {
 				Hwrite.right(averageRawFitness, 11, 3, summaryOutput);
 				Hwrite.right(stdevRawFitness, 11, 3, summaryOutput);
 				summaryOutput.write("\n");
+
+				// Output generation statistics to block file
+				//blockSummaryOutput.write(formattedR + "" + formattedG);
+				//for(int i = 0; i < numBlocks.length; i++) {
+				//	String formatted = String.format("%9d", numBlocks[G][i]);
+				//	blockSummaryOutput.write(formatted + " ");
+				//}
+				//blockSummaryOutput.write("\n");
 
 
 		// *********************************************************************
@@ -395,7 +423,7 @@ public class Search {
 				// Exit condition
 				if(foundSolution) break;
 
-			} //  Repeat the above loop for each generation
+			} //  Repeat the above loop for each generation or until a solution is found
 
 			Hwrite.left(bestOfRunR, 4, summaryOutput);
 			Hwrite.right(bestOfRunG, 4, summaryOutput);
@@ -405,10 +433,15 @@ public class Search {
 			System.out.println(R + "\t" + "B" + "\t"+ (int)bestOfRunChromo.rawFitness);
 
 			// Schema statistics
-			numGenerations[R] = G;
-			for(int i = 0; i < Parameters.numGenes + extraBlocks; i++) {
-				avgNumBlocks[i] += numBlocks[i];
+			numGenerations[R - 1] = G;
+			for(int i = 0; i <= G; i++) {
+				for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
+					avgNumBlocks[i][j] += numBlocks[i][j];
+				}
 			}
+			
+			if(worstGeneration < G) worstGeneration = G;
+			blockSummaryOutput.write("\n");
 
 		} //End of a Run
 
@@ -418,11 +451,13 @@ public class Search {
 
 		Arrays.sort(numGenerations);
 		medianNumGenerations = Parameters.numRuns % 2 == 0 ? 
-			(numGenerations[Parameters.numRuns / 2] + numGenerations[Parameters.numRuns / 2 + 1]) / 2.0 : 
+			(numGenerations[Parameters.numRuns / 2 - 1] + numGenerations[Parameters.numRuns / 2]) / 2.0 : 
 			numGenerations[Parameters.numRuns / 2];
 
-		for(int i = 0; i < Parameters.numGenes + extraBlocks; i++) {
-			avgNumBlocks[i] /= 1.0 * Parameters.numRuns;
+		for(int i = 0; i <= worstGeneration; i++) {
+			for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
+				avgNumBlocks[i][j] /= (1.0 * Parameters.numRuns);
+			}
 		}
 
 		Hwrite.left("B", 8, summaryOutput);
@@ -431,7 +466,7 @@ public class Search {
 
 		//	Output Fitness Statistics matrix
 		summaryOutput.write("Gen            AvgFit              BestFit             StdDev\n");
-		for (int i=0; i<Parameters.generations; i++){
+		for (int i=0; i<=worstGeneration; i++){
 			Hwrite.left(i, 15, summaryOutput);
 			Hwrite.left(fitnessStats[0][i]/Parameters.numRuns, 20, 2, summaryOutput);
 			Hwrite.left(fitnessStats[1][i]/Parameters.numRuns, 20, 2, summaryOutput);
@@ -442,11 +477,55 @@ public class Search {
 		summaryOutput.write("\n");
 		summaryOutput.close();
 
+
+		//	Output block statistics
+		Parameters.outputParameters(blockSummaryOutput);
+		blockSummaryOutput.write("\nNumber of schemas: " + (Parameters.numGenes + extraBlocks) + "\n---------------------\n");
+		for(int i = 1; i <= Parameters.numGenes; i++) blockSummaryOutput.write("s" + i + ": " + Parameters.geneSize + "\n");
+		if(Parameters.isNonlinear) {
+			int k = Parameters.numGenes + 1;
+			int div = 2;
+			while(div < Parameters.numGenes) {
+				// Current fitness weight
+				int val = Parameters.geneSize * div;
+				for(int i = 0; i < Parameters.numGenes / div; i++)
+					blockSummaryOutput.write("s" + k + ": " + val + "\n");
+				div *= 2;
+			}
+		}
+
+		blockSummaryOutput.write("\n\nAverage # of Gens = " + avgNumGenerations);
+		blockSummaryOutput.write("\nMedian # of Gens = " + medianNumGenerations);
+
+		blockSummaryOutput.write("\n\nAverage # of Schema Per Generation");
+		blockSummaryOutput.write("\nGen       ");
+		for(int i = 1; i <= (Parameters.numGenes + extraBlocks); i++) {
+			String formatted = String.format("s" + "%-9d", i);
+			blockSummaryOutput.write(formatted);
+		}
+		blockSummaryOutput.write("\n");
+
+		for(int i = 0; i <= worstGeneration; i++) {
+			String formatted = String.format("%-10d", i);
+			blockSummaryOutput.write(formatted);
+			for(int j = 0; j < avgNumBlocks[i].length; j++) {
+				formatted = String.format("%-9s", formatDouble(avgNumBlocks[i][j]));
+				blockSummaryOutput.write(formatted + " ");
+			}
+			blockSummaryOutput.write("\n");
+		}
+
+		blockSummaryOutput.write("\n");
+		blockSummaryOutput.close();
+
 		System.out.println();
 		System.out.println("Start:  " + startTime);
 		dateAndTime = Calendar.getInstance(); 
 		Date endTime = dateAndTime.getTime();
 		System.out.println("End  :  " + endTime);
+
+		System.out.println("Solution = " + solution);
+		System.out.println("Worst gen = " + worstGeneration);
 
 	} // End of Main Class
 

@@ -235,6 +235,9 @@ public class Chromo
 		targetA.rawFitness = sourceB.rawFitness;
 		targetA.sclFitness = sourceB.sclFitness;
 		targetA.proFitness = sourceB.proFitness;
+
+		targetA.hasBlock = Arrays.copyOf(sourceB.hasBlock, sourceB.hasBlock.length);
+		
 		return;
 	}
 
