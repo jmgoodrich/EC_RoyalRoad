@@ -39,6 +39,8 @@ public class Parameters
 	public static int numGenes;
 	public static int geneSize;
 
+	public static int intermediateBlocks;
+
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
@@ -68,6 +70,7 @@ public class Parameters
 		seed = Long.parseLong(parmInput.readLine().substring(30).trim());
 		numGenes = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		geneSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
+		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 
@@ -109,6 +112,7 @@ public class Parameters
 		output.write("Random Number Seed           :  " + seed + "\n");
 		output.write("Number of Genes/Points       :  " + numGenes + "\n");
 		output.write("Size of Genes                :  " + geneSize + "\n");
+		output.write("Intermediate Blocks          :  " + intermediateBlocks + "\n");
 
 		output.write("\n\n");
 

@@ -1,13 +1,8 @@
-/******************************************************************************
-*  A Teaching GA					  Developed by Hal Stringer & Annie Wu, UCF
-*  Version 2, January 18, 2004
-*******************************************************************************/
-
 import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class NumberMatch extends FitnessFunction{
+public class OneMax extends FitnessFunction{
 
 /*******************************************************************************
 *                            INSTANCE VARIABLES                                *
@@ -18,23 +13,13 @@ public class NumberMatch extends FitnessFunction{
 *                            STATIC VARIABLES                                  *
 *******************************************************************************/
 
-	//  Assumes no more than 100 values in the data file
-	public static int[] testValue = new int[100];
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
 
-	public NumberMatch () throws java.io.IOException {
-
-		name = "Number Match Problem";
-
-		//	Create Table of X values from input file
-		BufferedReader input = new BufferedReader(new FileReader (Parameters.dataInputFileName));
-		for (int i=0; i<Parameters.numGenes; i++){
-			testValue[i] = Integer.parseInt(input.readLine().trim());
-		}
-		input.close();
+	public RoyalRoad(){
+		name = "RoyalRoad Problem";
 	}
 
 /*******************************************************************************
@@ -45,11 +30,40 @@ public class NumberMatch extends FitnessFunction{
 
 	public void doRawFitness(Chromo X){
 
-		double difference = 0;
-		for (int j=0; j<Parameters.numGenes; j++){
-			difference = (double) Math.abs(X.getIntGeneValue(j) - testValue[j]);
-			X.rawFitness = X.rawFitness + difference;
+		X.rawFitness = 0;
+        int steps = Parameters.intermediateBlocks;
+
+
+		for(int i = 0; i < Parameters.numGenes; i++) {
+			boolean flag = false;
+			for(int j = 0; j < Parameters.geneSize; j++) {
+
+				// Not a block
+				if(X.chromo.charAt(i * Parameters.geneSize + j) == '0') {
+					flag = true;
+					break;
+				}
+			}
+
+			// Is this a block?
+			if(!flag) {
+				X.hasBlock[i] = true;
+				X.rawFitness += Parameters.geneSize;
+			}
 		}
+
+        // if(steps > 0){
+        //     for(int k = steps; k > 0; k--){
+        //         for(int m = 0; m < Parameters.numGenes; m = m+Math.pow(2, k)){
+        //             for(int n = 0; n < Parameters.numGenes/steps; n++) {
+        //                 if(!X.hasBlock[n+m]){
+        //                     break;
+        //                 }
+        //                 X.rawFitness += Parameters.geneSize * Math.pow(2, k);
+        //             }
+        //         }
+        //     }
+        // }
 	}
 
 //  PRINT OUT AN INDIVIDUAL GENE TO THE SUMMARY FILE *********************************
@@ -62,7 +76,7 @@ public class NumberMatch extends FitnessFunction{
 		output.write("   RawFitness");
 		output.write("\n        ");
 		for (int i=0; i<Parameters.numGenes; i++){
-			Hwrite.right(X.getIntGeneValue(i),11,output);
+			Hwrite.right(X.getPosIntGeneValue(i),11,output);
 		}
 		Hwrite.right((int) X.rawFitness,13,output);
 		output.write("\n\n");
@@ -73,5 +87,4 @@ public class NumberMatch extends FitnessFunction{
 *                             STATIC METHODS                                   *
 *******************************************************************************/
 
-}   // End of NumberMatch.java *************************************************
-
+}   // End of RoyalRoad.java ******************************************************

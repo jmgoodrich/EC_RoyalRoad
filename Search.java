@@ -105,6 +105,9 @@ public class Search {
 		else if (Parameters.problemType.equals("OM")){
 				problem = new OneMax();
 		}
+		else if (Parameters.problemType.equals("RR")){
+				problem = new RoyalRoad();
+		}
 		else System.out.println("Invalid Problem Type");
 
 		System.out.println(problem.name);

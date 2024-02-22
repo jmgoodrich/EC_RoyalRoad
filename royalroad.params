@@ -1,18 +1,19 @@
-Experiment ID                :numbermatch
-Problem Type                 :NM
-Data Input File Name         :indata.NM.txt
-Number of Runs               :3
-Generations per Run          :100
+Experiment ID                :royalroad
+Problem Type                 :RR
+Data Input File Name         :NA
+Number of Runs               :50
+Generations per Run          :10
 Population Size              :100
 Selection Method (1)         :1
-Fitness Scaling Type (2)     :1
+Fitness Scaling Type (2)     :0
 Crossover Type (3)           :1
-Crossover Rate (4)           :1.0
+Crossover Rate (4)           :0.8
 Mutation Type (5)            :1
-Mutation Rate (6)            :.01
+Mutation Rate (6)            :0.005
 Random Number Seed           :75982
 Number of Genes/Points (7)   :8
-Size of Genes (18)           :9
+Size of Genes (8)            :8
+Intermediate Blocks (9)      :2
 
 Notes:
 
@@ -39,3 +40,5 @@ Notes:
 
 8)	Determines number of bits in each gene.  Number of Genes times Size
 	gives the number of bits in each chromosome.
+
+9)  Determines number of intermediate stepping stones.
