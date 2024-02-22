@@ -490,7 +490,7 @@ public class Search {
 				// Current fitness weight
 				int val = Parameters.geneSize * div;
 				for(int i = 0; i < Parameters.numGenes / div; i++)
-					blockSummaryOutput.write("s" + k + ": " + val + "\n");
+					blockSummaryOutput.write("s" + (k++) + ": " + val + "\n");
 				div *= 2;
 			}
 		}
