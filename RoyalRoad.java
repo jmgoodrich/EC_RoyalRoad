@@ -64,7 +64,8 @@ public class RoyalRoad extends FitnessFunction{
 			int j;
 
 			// Modify extra blocks
-			for(int k = Parameters.numGenes; k < Parameters.numGenes + Search.extraBlocks; k++) {
+			int k = Parameters.numGenes;
+			while(k < Parameters.numGenes + Search.extraBlocks) {
 
 				// Add if blocks exist
 				for(i = 0; i < Parameters.numGenes; i += jump) {
@@ -81,6 +82,7 @@ public class RoyalRoad extends FitnessFunction{
 						X.hasBlock[k] = true;
 						X.rawFitness += jump * Parameters.geneSize;
 					}
+					k++;
 				}
 
 				// Increase schema size

@@ -84,7 +84,7 @@ public class Search {
 		if (value == (long) value) {
 			return String.format("%d", (long) value);
 		} else {
-			return String.format("%.5f", value).replaceAll("0*$", "").replaceAll("\\.$", "");
+			return String.format("%.4f", value).replaceAll("0*$", "").replaceAll("\\.$", "");
 		}
 	}
 
@@ -433,6 +433,7 @@ public class Search {
 			System.out.println(R + "\t" + "B" + "\t"+ (int)bestOfRunChromo.rawFitness);
 
 			// Schema statistics
+			if(G == Parameters.generations) G--;
 			numGenerations[R - 1] = G;
 			for(int i = 0; i <= G; i++) {
 				for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
@@ -498,18 +499,18 @@ public class Search {
 		blockSummaryOutput.write("\nMedian # of Gens = " + medianNumGenerations);
 
 		blockSummaryOutput.write("\n\nAverage # of Schema Per Generation");
-		blockSummaryOutput.write("\nGen       ");
+		blockSummaryOutput.write("\nGen    ");
 		for(int i = 1; i <= (Parameters.numGenes + extraBlocks); i++) {
-			String formatted = String.format("s" + "%-9d", i);
+			String formatted = String.format("s" + "%-8d", i);
 			blockSummaryOutput.write(formatted);
 		}
 		blockSummaryOutput.write("\n");
 
 		for(int i = 0; i <= worstGeneration; i++) {
-			String formatted = String.format("%-10d", i);
+			String formatted = String.format("%-7d", i);
 			blockSummaryOutput.write(formatted);
 			for(int j = 0; j < avgNumBlocks[i].length; j++) {
-				formatted = String.format("%-9s", formatDouble(avgNumBlocks[i][j]));
+				formatted = String.format("%-8s", formatDouble(avgNumBlocks[i][j]));
 				blockSummaryOutput.write(formatted + " ");
 			}
 			blockSummaryOutput.write("\n");
