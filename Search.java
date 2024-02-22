@@ -442,7 +442,7 @@ public class Search {
 			}
 			
 			if(worstGeneration < G) worstGeneration = G;
-			blockSummaryOutput.write("\n");
+			//blockSummaryOutput.write("\n");
 
 		} //End of a Run
 

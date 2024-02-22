@@ -13,7 +13,7 @@ Mutation Rate (6)            :0.005
 Random Number Seed           :75982
 Number of Genes/Points (7)   :8
 Size of Genes (8)            :8
-Is NonLinear? (9)            :2
+Is NonLinear? (9)            :1
 Imtermediate Blocks? (10)    :2
 
 Notes:
