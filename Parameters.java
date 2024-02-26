@@ -42,6 +42,8 @@ public class Parameters
 	public static boolean isNonlinear;
 	public static int intermediateBlocks;
 
+	public static double biasedPopulationRate;
+
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
@@ -74,6 +76,7 @@ public class Parameters
 
 		isNonlinear = Integer.parseInt(parmInput.readLine().substring(30).trim()) == 1 ? false : true;
 		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
+		biasedPopulationRate = Double.parseDouble(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 
@@ -117,6 +120,7 @@ public class Parameters
 		output.write("Size of Genes                :  " + geneSize + "\n");
 		output.write("Problem                      :  " + (isNonlinear ? "R2" : "R1") + "\n");
 		output.write("Intermediate Blocks          :  " + intermediateBlocks + "\n");
+		output.write("Initial Population Bias      :  " + biasedPopulationRate + "\n");
 
 		output.write("\n\n");
 

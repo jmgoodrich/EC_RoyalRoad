@@ -56,6 +56,7 @@ public class Search {
 
 	public static int numBlocks[][];
 	public static double avgNumBlocks[][];
+	private static double stdError;
 	public static int extraBlocks;
 
 	public static double avgNumGenerations;
@@ -165,18 +166,11 @@ public class Search {
 
 		bestOverAllChromo.rawFitness = defaultBest;
 
-		//blockSummaryOutput.write("\n\nRun       Gen       ");
-		//for(int i = 1; i <= (Parameters.numGenes + extraBlocks); i++) {
-		//	String formatted = String.format("s" + "%10d\n", i);
-		//	blockSummaryOutput.write(formatted);
-		//}
-
 		//  Start program for multiple runs
 		for (R = 1; R <= Parameters.numRuns; R++){
 
 			bestOfRunChromo.rawFitness = defaultBest;
 			System.out.println();
-			//String formattedR = String.format("%10d", R);
 
 			//	Initialize First Generation
 			for (int i=0; i<Parameters.popSize; i++){
@@ -196,7 +190,6 @@ public class Search {
 				sumRawFitness = 0;
 				sumRawFitness2 = 0;
 				bestOfGenChromo.rawFitness = defaultBest;
-				//String formattedG = String.format("%10d", G);
 
 				// Schema information
 				numBlocks[G] = new int[Parameters.numGenes + extraBlocks];
@@ -371,9 +364,17 @@ public class Search {
 				case 4:		//	Fitness scaled using sigma scaling
 
 					for (int i=0; i<Parameters.popSize; i++){
-						member[i].sclFitness = 1 + ((member[i].rawFitness - averageRawFitness) / (2.0 * stdevRawFitness));
-						if(member[i].sclFitness > 1.5) member[i].sclFitness = 1.5;
 
+						// SD = 0: All same scl fitness
+						if(stdevRawFitness == 0.0) {
+							member[i].sclFitness = 1;
+						}
+
+						// Sigma scaling
+						else {
+							member[i].sclFitness = 1 + ((member[i].rawFitness - averageRawFitness) / (2.0 * stdevRawFitness));
+							if(member[i].sclFitness > 1.5) member[i].sclFitness = 1.5;
+						}
 						sumSclFitness += member[i].sclFitness;
 					}
 					
@@ -453,7 +454,6 @@ public class Search {
 			}
 			
 			if(worstGeneration < G) worstGeneration = G;
-			//blockSummaryOutput.write("\n");
 
 		} //End of a Run
 
@@ -471,6 +471,14 @@ public class Search {
 				avgNumBlocks[i][j] /= (1.0 * Parameters.numRuns);
 			}
 		}
+
+		stdError = 0.0;
+		for(int i = 0; i < Parameters.numRuns; i++)
+			stdError += Math.pow(numGenerations[i] - avgNumGenerations, 2);
+		stdError /= ((1.0 * Parameters.numRuns) - 1);
+		stdError = Math.sqrt(stdError);
+		stdError /= Math.sqrt(Parameters.numRuns);
+
 
 		Hwrite.left("B", 8, summaryOutput);
 
@@ -507,6 +515,7 @@ public class Search {
 		}
 
 		blockSummaryOutput.write("\n\nAverage # of Gens = " + avgNumGenerations);
+		blockSummaryOutput.write("\nAverage # of Gens Standard Error = " + stdError);
 		blockSummaryOutput.write("\nMedian # of Gens = " + medianNumGenerations);
 
 		blockSummaryOutput.write("\n\nAverage # of Schema Per Generation");
