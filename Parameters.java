@@ -77,7 +77,7 @@ public class Parameters
 
 		parmInput.close();
 
-		if (scaleType==0 || scaleType==2) minORmax = "max";
+		if (scaleType==0 || scaleType==2 || scaleType==4) minORmax = "max";
 		else minORmax = "min";
 
 	}

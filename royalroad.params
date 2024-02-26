@@ -4,8 +4,8 @@ Data Input File Name         :NA
 Number of Runs               :500
 Generations per Run          :256000
 Population Size              :128
-Selection Method (1)         :1
-Fitness Scaling Type (2)     :0
+Selection Method (1)         :2
+Fitness Scaling Type (2)     :4
 Crossover Type (3)           :1
 Crossover Rate (4)           :0.7
 Mutation Type (5)            :1
@@ -13,8 +13,8 @@ Mutation Rate (6)            :0.005
 Random Number Seed           :75982
 Number of Genes/Points (7)   :8
 Size of Genes (8)            :8
-Is NonLinear? (9)            :2
-Imtermediate Blocks? (10)    :2
+Is NonLinear? (9)            :1
+Intermediate Blocks? (10)    :2
 
 Notes:
 
@@ -26,6 +26,7 @@ Notes:
 							1 = Scale for Minimization (reciprocal of raw fitness)
 							2 = Rank for Maximization
 							3 = Rank for Minimization
+							4 = Sigma Scaling for Maximization
 
 3)  Crossover Type Codes    1 = Single Point Crossover
 							2 = Two Point Crossover

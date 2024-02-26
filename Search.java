@@ -368,6 +368,17 @@ public class Search {
 
 					break;
 
+				case 4:		//	Fitness scaled using sigma scaling
+
+					for (int i=0; i<Parameters.popSize; i++){
+						member[i].sclFitness = 1 + ((member[i].rawFitness - averageRawFitness) / (2.0 * stdevRawFitness));
+						if(member[i].sclFitness > 1.5) member[i].sclFitness = 1.5;
+
+						sumSclFitness += member[i].sclFitness;
+					}
+					
+					break;
+
 				default:
 					System.out.println("ERROR - No scaling method selected");
 				}
