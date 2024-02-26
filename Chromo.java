@@ -32,22 +32,51 @@ public class Chromo
 
 	public Chromo(){
 
-		//  Set gene values to a randum sequence of 1's and 0's
+		// Initialize
 		char geneBit;
 		chromo = "";
-		for (int i=0; i<Parameters.numGenes; i++){
-			for (int j=0; j<Parameters.geneSize; j++){
-				randnum = Search.r.nextDouble();
-				if (randnum > 0.5) geneBit = '0';
-				else geneBit = '1';
+
+		// Determine if a biased individual will be generated
+		randnum = Search.r.nextDouble();
+		if(randnum < Parameters.biasedPopulationRate) {
+			
+			// Determine which building block to create
+			int rand = Search.r.nextInt(Parameters.numGenes);
+
+			// Create the genome
+			int i;
+			geneBit = '0';
+			for(i = 0; i < rand * Parameters.geneSize; i++) {
 				this.chromo = chromo + geneBit;
+			}
+			geneBit = '1';
+			int j = i + 8;
+			for(; i < j; i++) {
+				this.chromo = chromo + geneBit;
+			}
+			geneBit = '0';
+			for(; i < Parameters.numGenes * Parameters.geneSize; i++) {
+				this.chromo = chromo + geneBit;
+			}
+		}
+
+		//  Set gene values to a randum sequence of 1's and 0's
+		else {
+			for (int i=0; i<Parameters.numGenes; i++){
+				for (int j=0; j<Parameters.geneSize; j++){
+					randnum = Search.r.nextDouble();
+					if (randnum > 0.5) geneBit = '0';
+					else geneBit = '1';
+					this.chromo = chromo + geneBit;
+				}
 			}
 		}
 
 		this.rawFitness = -1;   //  Fitness not yet evaluated
 		this.sclFitness = -1;   //  Fitness not yet scaled
 		this.proFitness = -1;   //  Fitness not yet proportionalized
-		this.hasBlock = new boolean[Parameters.numGenes];	//	By default, all are false
+		if(Parameters.isNonlinear) this.hasBlock = new boolean[Parameters.numGenes + Search.extraBlocks];	//	By default, all are false
+		else this.hasBlock = new boolean[Parameters.numGenes];
 	}
 
 
@@ -136,9 +165,6 @@ public class Chromo
 		double rWheel = 0;
 		int j = 0;
 		int k = 0;
-		double best = 0;
-		int victor = 0;
-		int tournSize = 3;
 
 		switch (Parameters.selectType){
 
@@ -146,8 +172,11 @@ public class Chromo
 			randnum = Search.r.nextDouble();
 			for (j=0; j<Parameters.popSize; j++){
 				rWheel = rWheel + Search.member[j].proFitness;
-				if (randnum < rWheel) return(j);
+				if (randnum < rWheel) {
+					return(j);
+				}
 			}
+			//System.out.println("Here! rWheel = " + rWheel + " ||| randnum = " + randnum + " ||| Member 0 fitness: " + Search.member[0].proFitness);
 			break;
 
 		case 3:     // Random Selection
@@ -156,19 +185,27 @@ public class Chromo
 			return(j);
 
 		case 2:     //  Tournament Selection
-			for (j=0; j<Parameters.popSize; j++){
-				for (k=0; k<tournSize; k++){
-					randnum = Search.r.nextDouble();
-					best = 0;
-					int contestant = (int) (randnum * Parameters.popSize);
-					if (best < Search.member[contestant].proFitness){
-						best = Search.member[contestant].proFitness;
-						victor = contestant;
+			int tournamentSize = 5;
+			int[] participants = new int[tournamentSize];
+			int l = 0;
+			for (j=0; j<tournamentSize; j++){
+				randnum = Search.r.nextDouble();
+				l = (int) (randnum * Parameters.popSize);
+				for(k=0; k<j; k++){
+					if(participants[k] == l){
+						k = -1;
+						randnum = Search.r.nextDouble();
+						l = (int) (randnum * Parameters.popSize);
 					}
 				}
-				return(victor);
+				participants[j] = l;
 			}
-			break;
+
+			j = 0;
+			for(k=1; k<tournamentSize; k++){
+				if(Search.member[participants[k]].rawFitness > Search.member[participants[j]].rawFitness) j = k;
+			}
+			return(participants[j]);
 
 		default:
 			System.out.println("ERROR - No selection method selected");
@@ -234,6 +271,9 @@ public class Chromo
 		targetA.rawFitness = sourceB.rawFitness;
 		targetA.sclFitness = sourceB.sclFitness;
 		targetA.proFitness = sourceB.proFitness;
+
+		targetA.hasBlock = Arrays.copyOf(sourceB.hasBlock, sourceB.hasBlock.length);
+		
 		return;
 	}
 

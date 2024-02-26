@@ -54,7 +54,18 @@ public class Search {
 
 	private static double fitnessStats[][];  // 0=Avg, 1=Best
 
-	private static int numBlocks[];
+	public static int numBlocks[][];
+	public static double avgNumBlocks[][];
+	private static double stdError;
+	public static int extraBlocks;
+
+	public static double avgNumGenerations;
+	public static double medianNumGenerations;
+	public static int[] numGenerations;
+	public static int worstGeneration;
+
+	private static boolean foundSolution;
+	private static int solution;
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -70,6 +81,14 @@ public class Search {
 *                             STATIC METHODS                                   *
 *******************************************************************************/
 
+	public static String formatDouble(double value) {
+		if (value == (long) value) {
+			return String.format("%d", (long) value);
+		} else {
+			return String.format("%.4f", value).replaceAll("0*$", "").replaceAll("\\.$", "");
+		}
+	}
+
 	public static void main(String[] args) throws java.io.IOException{
 
 		Calendar dateAndTime = Calendar.getInstance(); 
@@ -81,7 +100,9 @@ public class Search {
 
 	//  Write Parameters To Summary Output File
 		String summaryFileName = Parameters.expID + "_summary.txt";
+		String blockFileName = Parameters.expID + "_blocks_summary.txt";
 		FileWriter summaryOutput = new FileWriter(summaryFileName);
+		FileWriter blockSummaryOutput = new FileWriter(blockFileName);
 		parmValues.outputParameters(summaryOutput);
 
 	//	Set up Fitness Statistics matrix
@@ -93,7 +114,18 @@ public class Search {
 		}
 
 	//	Set up building blocks statistics
-		numBlocks = new int[Parameters.numGenes];	//	Sets all values to 0
+		extraBlocks = 0;
+		if(Parameters.isNonlinear) {
+			int j = Parameters.numGenes * 2;
+			while(j < Parameters.geneSize * Parameters.numGenes) {
+				extraBlocks += Parameters.geneSize * Parameters.numGenes / j;
+				j *= 2;
+			}
+		}
+		avgNumBlocks = new double[Parameters.generations][Parameters.numGenes + extraBlocks];	//	Sets all values to 0
+		avgNumGenerations = 0;
+		numGenerations = new int[Parameters.numRuns];
+		worstGeneration = 0;
 
 	//	Problem Specific Setup - For new new fitness function problems, create
 	//	the appropriate class file (extending FitnessFunction.java) and add
@@ -102,8 +134,8 @@ public class Search {
 		if (Parameters.problemType.equals("NM")){
 				problem = new NumberMatch();
 		}
-		else if (Parameters.problemType.equals("OM")){
-				problem = new OneMax();
+		else if (Parameters.problemType.equals("RR")){
+			problem = new RoyalRoad();
 		}
 		else if (Parameters.problemType.equals("RR")){
 				problem = new RoyalRoad();
@@ -121,6 +153,10 @@ public class Search {
 		bestOfGenChromo = new Chromo();
 		bestOfRunChromo = new Chromo();
 		bestOverAllChromo = new Chromo();
+		if(Parameters.isNonlinear)
+			solution = Parameters.geneSize * Parameters.numGenes * (int)(Math.log(Parameters.numGenes) / Math.log(2));
+		else 
+			solution = Parameters.geneSize * Parameters.numGenes;
 
 		if (Parameters.minORmax.equals("max")){
 			defaultBest = 0;
@@ -145,6 +181,10 @@ public class Search {
 				child[i] = new Chromo();
 			}
 
+			//	Initialize schema info
+			numBlocks = new int[Parameters.generations][Parameters.numGenes + extraBlocks];
+			foundSolution = false;
+
 			//	Begin Each Run
 			for (G=0; G<Parameters.generations; G++){
 
@@ -153,6 +193,9 @@ public class Search {
 				sumRawFitness = 0;
 				sumRawFitness2 = 0;
 				bestOfGenChromo.rawFitness = defaultBest;
+
+				// Schema information
+				numBlocks[G] = new int[Parameters.numGenes + extraBlocks];
 
 				//	Test Fitness of Each Member
 				for (int i=0; i<Parameters.popSize; i++){
@@ -164,8 +207,8 @@ public class Search {
 					problem.doRawFitness(member[i]);
 
 					//	Update building block statistics
-					for(int j = 0; j < Parameters.numGenes; j++) 
-						if(member[i].hasBlock[j]) numBlocks[j]++;
+					for(int j = 0; j < member[i].hasBlock.length; j++) 
+						if(member[i].hasBlock[j]) numBlocks[G][j]++;
 
 					sumRawFitness = sumRawFitness + member[i].rawFitness;
 					sumRawFitness2 = sumRawFitness2 +
@@ -211,6 +254,9 @@ public class Search {
 				fitnessStats[0][G] += sumRawFitness / Parameters.popSize;
 				fitnessStats[1][G] += bestOfGenChromo.rawFitness;
 
+				// Found a solution?
+				if(bestOfGenChromo.rawFitness == solution) foundSolution = true;
+
 				averageRawFitness = sumRawFitness / Parameters.popSize;
 				stdevRawFitness = Math.sqrt(
 							Math.abs(sumRawFitness2 - 
@@ -232,6 +278,14 @@ public class Search {
 				Hwrite.right(averageRawFitness, 11, 3, summaryOutput);
 				Hwrite.right(stdevRawFitness, 11, 3, summaryOutput);
 				summaryOutput.write("\n");
+
+				// Output generation statistics to block file
+				//blockSummaryOutput.write(formattedR + "" + formattedG);
+				//for(int i = 0; i < numBlocks.length; i++) {
+				//	String formatted = String.format("%9d", numBlocks[G][i]);
+				//	blockSummaryOutput.write(formatted + " ");
+				//}
+				//blockSummaryOutput.write("\n");
 
 
 		// *********************************************************************
@@ -310,6 +364,25 @@ public class Search {
 
 					break;
 
+				case 4:		//	Fitness scaled using sigma scaling
+
+					for (int i=0; i<Parameters.popSize; i++){
+
+						// SD = 0: All same scl fitness
+						if(stdevRawFitness == 0.0) {
+							member[i].sclFitness = 1;
+						}
+
+						// Sigma scaling
+						else {
+							member[i].sclFitness = 1 + ((member[i].rawFitness - averageRawFitness) / (2.0 * stdevRawFitness));
+							if(member[i].sclFitness > 1.5) member[i].sclFitness = 1.5;
+						}
+						sumSclFitness += member[i].sclFitness;
+					}
+					
+					break;
+
 				default:
 					System.out.println("ERROR - No scaling method selected");
 				}
@@ -362,7 +435,10 @@ public class Search {
 					Chromo.copyB2A(member[i], child[i]);
 				}
 
-			} //  Repeat the above loop for each generation
+				// Exit condition
+				if(foundSolution) break;
+
+			} //  Repeat the above loop for each generation or until a solution is found
 
 			Hwrite.left(bestOfRunR, 4, summaryOutput);
 			Hwrite.right(bestOfRunG, 4, summaryOutput);
@@ -371,7 +447,41 @@ public class Search {
 
 			System.out.println(R + "\t" + "B" + "\t"+ (int)bestOfRunChromo.rawFitness);
 
+			// Schema statistics
+			if(G == Parameters.generations) G--;
+			numGenerations[R - 1] = G;
+			for(int i = 0; i <= G; i++) {
+				for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
+					avgNumBlocks[i][j] += numBlocks[i][j];
+				}
+			}
+			
+			if(worstGeneration < G) worstGeneration = G;
+
 		} //End of a Run
+
+		// Update schema information
+		for(int i = 0; i < Parameters.numRuns; i++) avgNumGenerations += numGenerations[i];
+		avgNumGenerations /= 1.0 * Parameters.numRuns;
+
+		Arrays.sort(numGenerations);
+		medianNumGenerations = Parameters.numRuns % 2 == 0 ? 
+			(numGenerations[Parameters.numRuns / 2 - 1] + numGenerations[Parameters.numRuns / 2]) / 2.0 : 
+			numGenerations[Parameters.numRuns / 2];
+
+		for(int i = 0; i <= worstGeneration; i++) {
+			for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
+				avgNumBlocks[i][j] /= (1.0 * Parameters.numRuns);
+			}
+		}
+
+		stdError = 0.0;
+		for(int i = 0; i < Parameters.numRuns; i++)
+			stdError += Math.pow(numGenerations[i] - avgNumGenerations, 2);
+		stdError /= ((1.0 * Parameters.numRuns) - 1);
+		stdError = Math.sqrt(stdError);
+		stdError /= Math.sqrt(Parameters.numRuns);
+
 
 		Hwrite.left("B", 8, summaryOutput);
 
@@ -379,7 +489,7 @@ public class Search {
 
 		//	Output Fitness Statistics matrix
 		summaryOutput.write("Gen            AvgFit              BestFit             StdDev\n");
-		for (int i=0; i<Parameters.generations; i++){
+		for (int i=0; i<=worstGeneration; i++){
 			Hwrite.left(i, 15, summaryOutput);
 			Hwrite.left(fitnessStats[0][i]/Parameters.numRuns, 20, 2, summaryOutput);
 			Hwrite.left(fitnessStats[1][i]/Parameters.numRuns, 20, 2, summaryOutput);
@@ -390,11 +500,56 @@ public class Search {
 		summaryOutput.write("\n");
 		summaryOutput.close();
 
+
+		//	Output block statistics
+		Parameters.outputParameters(blockSummaryOutput);
+		blockSummaryOutput.write("\nNumber of schemas: " + (Parameters.numGenes + extraBlocks) + "\n---------------------\n");
+		for(int i = 1; i <= Parameters.numGenes; i++) blockSummaryOutput.write("s" + i + ": " + Parameters.geneSize + "\n");
+		if(Parameters.isNonlinear) {
+			int k = Parameters.numGenes + 1;
+			int div = 2;
+			while(div < Parameters.numGenes) {
+				// Current fitness weight
+				int val = Parameters.geneSize * div;
+				for(int i = 0; i < Parameters.numGenes / div; i++)
+					blockSummaryOutput.write("s" + (k++) + ": " + val + "\n");
+				div *= 2;
+			}
+		}
+
+		blockSummaryOutput.write("\n\nAverage # of Gens = " + avgNumGenerations);
+		blockSummaryOutput.write("\nAverage # of Gens Standard Error = " + stdError);
+		blockSummaryOutput.write("\nMedian # of Gens = " + medianNumGenerations);
+
+		blockSummaryOutput.write("\n\nAverage # of Schema Per Generation");
+		blockSummaryOutput.write("\nGen    ");
+		for(int i = 1; i <= (Parameters.numGenes + extraBlocks); i++) {
+			String formatted = String.format("s" + "%-8d", i);
+			blockSummaryOutput.write(formatted);
+		}
+		blockSummaryOutput.write("\n");
+
+		for(int i = 0; i <= worstGeneration; i++) {
+			String formatted = String.format("%-7d", i);
+			blockSummaryOutput.write(formatted);
+			for(int j = 0; j < avgNumBlocks[i].length; j++) {
+				formatted = String.format("%-8s", formatDouble(avgNumBlocks[i][j]));
+				blockSummaryOutput.write(formatted + " ");
+			}
+			blockSummaryOutput.write("\n");
+		}
+
+		blockSummaryOutput.write("\n");
+		blockSummaryOutput.close();
+
 		System.out.println();
 		System.out.println("Start:  " + startTime);
 		dateAndTime = Calendar.getInstance(); 
 		Date endTime = dateAndTime.getTime();
 		System.out.println("End  :  " + endTime);
+
+		System.out.println("Solution = " + solution);
+		System.out.println("Worst gen = " + worstGeneration);
 
 	} // End of Main Class
 
