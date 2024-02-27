@@ -165,6 +165,8 @@ public class Chromo
 		double rWheel = 0;
 		int j = 0;
 		int k = 0;
+		double best = 0;
+		int victor = 0;
 
 		switch (Parameters.selectType){
 
@@ -185,27 +187,24 @@ public class Chromo
 			return(j);
 
 		case 2:     //  Tournament Selection
-			int tournamentSize = 5;
-			int[] participants = new int[tournamentSize];
-			int l = 0;
-			for (j=0; j<tournamentSize; j++){
-				randnum = Search.r.nextDouble();
-				l = (int) (randnum * Parameters.popSize);
-				for(k=0; k<j; k++){
-					if(participants[k] == l){
-						k = -1;
-						randnum = Search.r.nextDouble();
-						l = (int) (randnum * Parameters.popSize);
-					}
-				}
-				participants[j] = l;
-			}
+			ArrayList<Integer> tournamentMembers =
+					new ArrayList<Integer>(Parameters.tournamentSize);
 
-			j = 0;
-			for(k=1; k<tournamentSize; k++){
-				if(Search.member[participants[k]].rawFitness > Search.member[participants[j]].rawFitness) j = k;
+			best = -1; // -1 means not set
+			for (k=0; k<Parameters.tournamentSize; k++) {
+				randnum = Search.r.nextDouble();
+				while (tournamentMembers.contains(randnum)){
+					randnum = Search.r.nextDouble();
+				}
+				double prob = Search.r.nextDouble();
+				int contestant = (int) (randnum * Parameters.popSize);
+				if ((best == -1 || prob < Parameters.tournamentProb) &&
+						best < Search.member[contestant].proFitness) {
+					best = Search.member[contestant].proFitness;
+					victor = contestant;
+				}
 			}
-			return(participants[j]);
+			return(victor);
 
 		default:
 			System.out.println("ERROR - No selection method selected");

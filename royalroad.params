@@ -16,6 +16,8 @@ Size of Genes (8)            :8
 Is NonLinear? (9)            :1
 Intermediate Blocks? (10)    :2
 Initial Population Bias (11) :0
+Tournament Size (12)         :2
+Tournament Probability (13)  :1.0
 
 Notes:
 
@@ -51,3 +53,10 @@ Notes:
 10) Number of extra group evaluations to be completed
 
 11) Percent of the initial population to only contain random building block. Between 0 and 1
+
+12) Determines the size of the tournament for tournament selection.
+    (Only used for Selection Type 2)
+
+13) Determine the probability of selecting the best individual when performing
+    tournament selection 1.0 = deterministic tournament selection meaning
+    always select the best. (Only used for Selection Type 2)

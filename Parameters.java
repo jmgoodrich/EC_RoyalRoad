@@ -42,6 +42,8 @@ public class Parameters
 	public static boolean isNonlinear;
 	public static int intermediateBlocks;
 
+	public static int tournamentSize;
+	public static double tournamentProb;
 	public static double biasedPopulationRate;
 
 /*******************************************************************************
@@ -77,6 +79,9 @@ public class Parameters
 		isNonlinear = Integer.parseInt(parmInput.readLine().substring(30).trim()) == 1 ? false : true;
 		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		biasedPopulationRate = Double.parseDouble(parmInput.readLine().substring(30).trim());
+
+		tournamentSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
+		tournamentProb = Double.parseDouble(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 
