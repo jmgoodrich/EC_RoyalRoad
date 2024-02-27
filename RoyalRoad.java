@@ -1,8 +1,13 @@
+/******************************************************************************
+*  A Teaching GA					  Developed by Hal Stringer & Annie Wu, UCF
+*  Version 2, January 18, 2004
+*******************************************************************************/
+
 import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class OneMax extends FitnessFunction{
+public class RoyalRoad extends FitnessFunction{
 
 /*******************************************************************************
 *                            INSTANCE VARIABLES                                *
@@ -31,8 +36,6 @@ public class OneMax extends FitnessFunction{
 	public void doRawFitness(Chromo X){
 
 		X.rawFitness = 0;
-        int steps = Parameters.intermediateBlocks;
-
 
 		for(int i = 0; i < Parameters.numGenes; i++) {
 			boolean flag = false;
@@ -52,7 +55,52 @@ public class OneMax extends FitnessFunction{
 			}
 		}
 
-        // if(steps > 0){
+		// R2 evaluations?
+		if(Parameters.isNonlinear) {
+
+			// Initialize
+			int jump = 2;
+			int i;
+			int j;
+
+			// Modify extra blocks
+			int k = Parameters.numGenes;
+			while(k < Parameters.numGenes + Search.extraBlocks) {
+
+				// Add if blocks exist
+				for(i = 0; i < Parameters.numGenes; i += jump) {
+					boolean flag = false;
+					for(j = i; j < i + jump; j++) {
+						if(!X.hasBlock[j]) {
+							flag = true;
+							break;
+						}
+					}
+
+					// Schema exists
+					if(!flag) {
+						X.hasBlock[k] = true;
+						X.rawFitness += jump * Parameters.geneSize;
+					}
+					k++;
+				}
+
+				// Increase schema size
+				jump *= 2;
+			}
+		}
+
+		// Debug
+		//if(X.rawFitness > 8) {
+		//	System.out.print("Chromo: ");
+		//	for(int i = 0; i < 64; i += 8) {
+		//		System.out.print(X.chromo.substring(i, i + 8) + " ");
+		//	}
+		//	System.out.println(" ||| Fitness = " + X.rawFitness);
+		//}
+
+		// int steps = Parameters.intermediateBlocks;
+		// if(steps > 0){
         //     for(int k = steps; k > 0; k--){
         //         for(int m = 0; m < Parameters.numGenes; m = m+Math.pow(2, k)){
         //             for(int n = 0; n < Parameters.numGenes/steps; n++) {
@@ -87,4 +135,5 @@ public class OneMax extends FitnessFunction{
 *                             STATIC METHODS                                   *
 *******************************************************************************/
 
-}   // End of RoyalRoad.java ******************************************************
+}   // End of OneMax.java ******************************************************
+

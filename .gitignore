@@ -1,5 +1,4 @@
 *.class
-onemax_summary.txt
 # Default ignored files
 /shelf/
 /workspace.xml
@@ -9,3 +8,4 @@ onemax_summary.txt
 /dataSources/
 /dataSources.local.xml
 .idea/
+*.txt

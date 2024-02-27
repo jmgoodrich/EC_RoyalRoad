@@ -39,10 +39,12 @@ public class Parameters
 	public static int numGenes;
 	public static int geneSize;
 
+	public static boolean isNonlinear;
 	public static int intermediateBlocks;
 
 	public static int tournamentSize;
 	public static double tournamentProb;
+	public static double biasedPopulationRate;
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -73,14 +75,17 @@ public class Parameters
 		seed = Long.parseLong(parmInput.readLine().substring(30).trim());
 		numGenes = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		geneSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
+
+		isNonlinear = Integer.parseInt(parmInput.readLine().substring(30).trim()) == 1 ? false : true;
 		intermediateBlocks = Integer.parseInt(parmInput.readLine().substring(30).trim());
+		biasedPopulationRate = Double.parseDouble(parmInput.readLine().substring(30).trim());
 
 		tournamentSize = Integer.parseInt(parmInput.readLine().substring(30).trim());
 		tournamentProb = Double.parseDouble(parmInput.readLine().substring(30).trim());
 
 		parmInput.close();
 
-		if (scaleType==0 || scaleType==2) minORmax = "max";
+		if (scaleType==0 || scaleType==2 || scaleType==4) minORmax = "max";
 		else minORmax = "min";
 
 	}
@@ -118,7 +123,9 @@ public class Parameters
 		output.write("Random Number Seed           :  " + seed + "\n");
 		output.write("Number of Genes/Points       :  " + numGenes + "\n");
 		output.write("Size of Genes                :  " + geneSize + "\n");
+		output.write("Problem                      :  " + (isNonlinear ? "R2" : "R1") + "\n");
 		output.write("Intermediate Blocks          :  " + intermediateBlocks + "\n");
+		output.write("Initial Population Bias      :  " + biasedPopulationRate + "\n");
 
 		output.write("\n\n");
 
