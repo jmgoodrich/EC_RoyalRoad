@@ -470,8 +470,13 @@ public class Search {
 			numGenerations[Parameters.numRuns / 2];
 
 		for(int i = 0; i <= worstGeneration; i++) {
+			int countRunsForGen = 0;
+			for(int k = 0; k < Parameters.numRuns; k++) {
+				countRunsForGen += numGenerations[k] >= i ? 1 : 0;
+			}
 			for(int j = 0; j < Parameters.numGenes + extraBlocks; j++) {
-				avgNumBlocks[i][j] /= (1.0 * Parameters.numRuns);
+				avgNumBlocks[i][j] = ( (avgNumBlocks[i][j] / (1.0 * countRunsForGen) )
+						/ ( Parameters.popSize * 1.0 ) ) * 100.0;
 			}
 		}
 
