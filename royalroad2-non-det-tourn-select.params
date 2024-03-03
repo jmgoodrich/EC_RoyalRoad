@@ -1,0 +1,62 @@
+Experiment ID                :royalroad2-non-det-tourn-select
+Problem Type                 :RR
+Data Input File Name         :NA
+Number of Runs               :500
+Generations per Run          :256000
+Population Size              :128
+Selection Method (1)         :2
+Fitness Scaling Type (2)     :4
+Crossover Type (3)           :1
+Crossover Rate (4)           :0.7
+Mutation Type (5)            :1
+Mutation Rate (6)            :0.005
+Random Number Seed           :75982
+Number of Genes/Points (7)   :8
+Size of Genes (8)            :8
+Is NonLinear? (9)            :2
+Intermediate Blocks? (10)    :2
+Initial Population Bias (11) :0
+Tournament Size (12)         :2
+Tournament Probability (13)  :0.8
+
+Notes:
+
+1)  Selection Type Codes    1 = Proportional Selection
+							2 = Tournament Selection
+							3 = Random Selection
+
+2)  Fitness Scaling Type    0 = Scale for Maximization (no change to raw fitness)
+							1 = Scale for Minimization (reciprocal of raw fitness)
+							2 = Rank for Maximization
+							3 = Rank for Minimization
+							4 = Sigma Scaling for Maximization
+
+3)  Crossover Type Codes    1 = Single Point Crossover
+							2 = Two Point Crossover
+							3 = Uniform Crossover
+
+4)  Crossover Rates from 0 to 1, Use "0" to turn off crossover
+
+5)  Mutation Type Codes     1 = Flip Bit
+
+6)  Mutation Rates from 0 to 1, Use "0" to turn off mutation
+
+7)	Represents number of genes in each chromosome.
+
+8)	Determines number of bits in each gene.  Number of Genes times Size
+	gives the number of bits in each chromosome.
+
+9) Determines if R1 or R2 will be used for evaluating Fitness	
+	1 = R1
+	2 = R2
+
+10) Number of extra group evaluations to be completed
+
+11) Percent of the initial population to only contain random building block. Between 0 and 1
+
+12) Determines the size of the tournament for tournament selection.
+    (Only used for Selection Type 2)
+
+13) Determine the probability of selecting the best individual when performing
+    tournament selection 1.0 = deterministic tournament selection meaning
+    always select the best. (Only used for Selection Type 2)
